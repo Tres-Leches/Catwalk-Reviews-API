@@ -1,0 +1,22 @@
+{
+  "name": "catwalk-reviews-api",
+  "version": "1.0.0",
+  "description": "Project Catwalk Reviews API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tres-Leches/Catwalk-Reviews-API.git"
+  },
+  "author": "Chris Wang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tres-Leches/Catwalk-Reviews-API/issues"
+  },
+  "homepage": "https://github.com/Tres-Leches/Catwalk-Reviews-API#readme",
+  "dependencies": {
+    "pg": "^8.5.1"
+  }
+}
