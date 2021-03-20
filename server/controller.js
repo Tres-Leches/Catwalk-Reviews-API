@@ -29,14 +29,16 @@ const controller = {
   },
 
   markReviewAsHelpful: (req, res) => {
-    dbMethods.markReviewAsHelpful((err, results) => {
-      err ? res.status(400).send(err) : res.status(200).send(results)
+    const review_id = req.params.review_id;
+    dbMethods.markReviewAsHelpful(review_id, (err) => {
+      err ? res.status(400).send(err) : res.status(204).send('UPDATED')
     })
   },
 
   reportReview: (req, res) => {
-    dbMethods.reportReview((err, results) => {
-      err ? res.status(400).send(err) : res.status(200).send(results)
+    const review_id = req.params.review_id;
+    dbMethods.reportReview(review_id, (err) => {
+      err ? res.status(400).send(err) : res.status(204).send('REPORTED')
     })
   },
 }

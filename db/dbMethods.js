@@ -41,7 +41,7 @@ const dbMethods = {
           r.reviewer_name,
           r.helpfulness,
           COALESCE(json_agg(
-            json_build_object('photo_id', p.id, 'url', p.url)) FILTER (WHERE p.id IS NOT NULL), '[]') as photos
+            json_build_object('id', p.id, 'url', p.url)) FILTER (WHERE p.id IS NOT NULL), '[]') as photos
         FROM reviews r
         LEFT JOIN reviews_photos p ON r.id = p.review_id
         WHERE r.product_id = ${object.product}
@@ -126,11 +126,12 @@ const dbMethods = {
 
   postReviewById: (req_body, callback) => {
     const { product_id, rating, summary, body, recommend, name, email, photos, characteristics } = req_body;
+    console.log(product_id);
     const insReviewsQuery = `
       INSERT INTO reviews(product_id, rating, summary, body, recommend, reviewer_name, reviewer_email)
       VALUES (${product_id}, ${rating}, '${summary}', '${body}', ${recommend}, '${name}', '${email}')
     `;
-    console.log('photos', photos);
+
     if (photos.length > 0) {
       var insPhotosQuery = `INSERT INTO reviews_photos(review_id, url) VALUES`;
       for (let i = 0; i < photos.length; i++) {
@@ -144,25 +145,53 @@ const dbMethods = {
       var insPhotosQuery = null;
     }
 
-    console.log(insPhotosQuery);
+    const len = Object.keys(characteristics).length;
+    if (len > 0) {
+      let i = 0;
+      var insCharQuery = `INSERT INTO characteristics_reviews(characteristic_id, review_id, value) VALUES`;
+      for (let id in characteristics) {
+        if (i === len - 1) {
+          insCharQuery += ` \ (${id}, currval(pg_get_serial_sequence('reviews', 'id')), ${characteristics[id]})`;
+        } else {
+          insCharQuery += ` \ (${id}, currval(pg_get_serial_sequence('reviews', 'id')), ${characteristics[id]}),`;
+        }
+        i++;
+      }
+    } else {
+      var insCharQuery = null;
+    }
+
     db.query(insReviewsQuery)
       .then(() => {
-        console.log('l146', insPhotosQuery);
         if (insPhotosQuery) {
-          console.log('l148', insPhotosQuery)
           db.query(insPhotosQuery);
         }
       })
+      .then(() => {
+        if (insCharQuery) {
+          db.query(insCharQuery);
+        }
+      })
       .then(() => callback(null, 'CREATED'))
-      .catch((err) => console.log('err',err));
+      .catch((err) => callback(err));
   },
 
-  markReviewAsHelpful: (callback) => {
-    callback(null, 'markReviewAsHelpful')
+  markReviewAsHelpful: (review_id, callback) => {
+    const helpfulQuery = `
+      UPDATE reviews SET helpfulness = helpfulness + 1 WHERE id = ${review_id}
+    `;
+    db.query(helpfulQuery)
+      .then(() => callback(null))
+      .catch((err) => callback(err));
   },
 
-  reportReview: (callback) => {
-    callback(null, 'reportReview')
+  reportReview: (review_id, callback) => {
+    const reportQuery = `
+      UPDATE reviews SET reported = true WHERE id = ${review_id}
+    `;
+    db.query(reportQuery)
+      .then(() => callback(null))
+      .catch((err) => callback(err));
   },
 }
 
