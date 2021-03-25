@@ -1,0 +1,7 @@
+#Git and cache folders
+.git
+.gitignore
+.cache
+
+#Node Modules folder
+node_modules/

@@ -3,6 +3,7 @@ const path = require('path');
 const morgan  = require('morgan');
 const cors = require('cors');
 const router = require('./router.js')
+require('newrelic');
 
 const app = express();
 const port = 8008;
